@@ -62,6 +62,7 @@
           <pre class="brush: js">
             {
               pieceLabel: {
+                adjustLabelPosition: true,
                 render: 'percentage',
                 fontColor: ['green', 'white', 'red'],
                 precision: 2
@@ -261,7 +262,7 @@
         datasets: [
           {
             label: 'My First dataset',
-            data: [50445, 33655, 15900],
+            data: [5445, 33655, 15900],
             backgroundColor: [
               '#FF6384',
               '#36A2EB',
@@ -293,6 +294,7 @@
         responsive: true,
         maintainAspectRatio: false,
         pieceLabel: {
+	        adjustLabelPosition: true,
           render: 'percentage',
           fontColor: ['green', 'white', 'red'],
           precision: 2

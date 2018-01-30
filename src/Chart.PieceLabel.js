@@ -17,7 +17,7 @@
   }
 
   PieceLabel.prototype.beforeDatasetsUpdate = function (chartInstance) {
-    if (this.parseOptions(chartInstance) && this.position === 'outside') {
+    if (this.parseOptions(chartInstance) && (this.position === 'outside' || this.adjustLabelPosition)) {
       var padding = this.fontSize * 1.5 + 2;
       chartInstance.chartArea.top += padding;
       chartInstance.chartArea.bottom -= padding;
@@ -97,19 +97,26 @@
       var position, innerRadius, arcOffset;
       if (this.position === 'outside' ||
         this.position === 'border' && chartInstance.config.type === 'pie') {
+          setForOuterPosition.call(this)
+      } else {
+        innerRadius = view.innerRadius;
+        position = element.tooltipPosition();
+      }
+
+      function setForOuterPosition() {
         innerRadius = view.outerRadius / 2;
         var rangeFromCentre, offset = this.fontSize + 2,
           centreAngle = view.startAngle + ((view.endAngle - view.startAngle) / 2);
         if (this.position === 'border') {
           rangeFromCentre = (view.outerRadius - innerRadius) / 2 + innerRadius;
-        } else if (this.position === 'outside') {
+        } else if (this.position === 'outside' || this.adjustLabelPosition) {
           rangeFromCentre = (view.outerRadius - innerRadius) + innerRadius + offset;
         }
         position = {
           x: view.x + (Math.cos(centreAngle) * rangeFromCentre),
           y: view.y + (Math.sin(centreAngle) * rangeFromCentre)
         };
-        if (this.position === 'outside') {
+        if (this.position === 'outside' || this.adjustLabelPosition) {
           if (position.x < view.x) {
             position.x -= offset;
           } else {
@@ -117,9 +124,6 @@
           }
           arcOffset = view.outerRadius + offset;
         }
-      } else {
-        innerRadius = view.innerRadius;
-        position = element.tooltipPosition();
       }
 
       var fontColor = this.fontColor;
@@ -159,6 +163,9 @@
         }
         if (drawable) {
           this.fillText(text, position, fontColor);
+        } else {
+          setForOuterPosition.call(this, true);
+          this.fillText(text, position, fontColor);
         }
       }
       ctx.restore();
@@ -176,6 +183,7 @@
       this.arc = pieceLabel.arc;
       this.format = pieceLabel.format;
       this.precision = pieceLabel.precision || 0;
+      this.adjustLabelPosition = pieceLabel.adjustLabelPosition || false;
       this.fontSize = pieceLabel.fontSize || this.options.defaultFontSize;
       this.fontColor = pieceLabel.fontColor || this.options.defaultFontColor;
       this.fontStyle = pieceLabel.fontStyle || this.options.defaultFontStyle;
